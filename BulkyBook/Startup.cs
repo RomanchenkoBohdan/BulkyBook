@@ -65,6 +65,17 @@ namespace BulkyBook
             });
 
             #endregion
+
+            services.AddAuthentication().AddFacebook(options=>
+            {
+                options.AppId = "263019341449645";
+                options.AppSecret = "011c1599f12ea30873dd24fd0cc87da7";
+            });
+            services.AddAuthentication().AddGoogle(options =>
+            {
+                options.ClientId = "241432442342-8br13vk6ku14sq8qnhpu1qe4d8og2ih1.apps.googleusercontent.com";
+                options.ClientSecret = "YHYzI-wmlJfKyga9ZiQLLOEd";
+            });
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
