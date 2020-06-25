@@ -17,6 +17,8 @@ namespace BulkyBook.Utility
         public const string Role_Admin = "Admin";
         public const string Role_Employee = "Employee";
 
+        public const string ssShoppingCart = "Shoping Cart Session";
+
 
         public static double GetPriceBasedOnQuantity(double qunatity, double price, double price50, double price100)
         {
