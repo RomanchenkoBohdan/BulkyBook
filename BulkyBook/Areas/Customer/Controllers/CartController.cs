@@ -224,7 +224,10 @@ namespace BulkyBook.Areas.Customer.Controllers
 
             if(stripeToken == null)
             {
-
+                //order will be created for delayed payment for authroized company
+                ShoppingCartVM.OrderHeader.PaymentDueDate = DateTime.Now.AddDays(30);
+                ShoppingCartVM.OrderHeader.PaymentStatus = SD.PaymentStatusDelayedPayment;
+                ShoppingCartVM.OrderHeader.OrderStatus = SD.StatusApproved;
             }
             else
             {
@@ -248,7 +251,7 @@ namespace BulkyBook.Areas.Customer.Controllers
                 {
                     ShoppingCartVM.OrderHeader.TransactionId = charge.BalanceTransactionId;
                 }
-                if (charge.Status.ToLower() == "succeeded")
+                if (charge.Status.ToLower() == "succeeded") 
                 {
                     ShoppingCartVM.OrderHeader.PaymentStatus = SD.PaymentStatusApproved;
                     ShoppingCartVM.OrderHeader.OrderStatus = SD.StatusApproved;
