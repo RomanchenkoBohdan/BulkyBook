@@ -185,12 +185,12 @@ namespace BulkyBook.Areas.Customer.Controllers
             var claimsIdentity = (ClaimsIdentity)User.Identity;
             var claim = claimsIdentity.FindFirst(ClaimTypes.NameIdentifier);
             ShoppingCartVM.OrderHeader.ApplicationUser = _unitOfWork.ApplicationUser
-                                                              .GetFirstOrDefault(c => c.Id == claim.Value,
-                                                                        includeProperties: "Company");
+                                                            .GetFirstOrDefault(c => c.Id == claim.Value,
+                                                                    includeProperties: "Company");
 
             ShoppingCartVM.ListCart = _unitOfWork.ShopingCart
-                                           .GetAll(c => c.ApplicationUserId == claim.Value,
-                                           includeProperties:"Product");
+                                        .GetAll(c => c.ApplicationUserId == claim.Value,
+                                        includeProperties: "Product");
 
             ShoppingCartVM.OrderHeader.PaymentStatus = SD.PaymentStatusPending;
             ShoppingCartVM.OrderHeader.OrderStatus = SD.StatusPending;
@@ -201,7 +201,7 @@ namespace BulkyBook.Areas.Customer.Controllers
             _unitOfWork.Save();
 
             List<OrderDetails> orderDetailsList = new List<OrderDetails>();
-            foreach(var item in ShoppingCartVM.ListCart)
+            foreach (var item in ShoppingCartVM.ListCart)
             {
                 item.Price = SD.GetPriceBasedOnQuantity(item.Count, item.Product.Price,
                     item.Product.Price50, item.Product.Price100);
@@ -221,8 +221,7 @@ namespace BulkyBook.Areas.Customer.Controllers
             _unitOfWork.Save();
             HttpContext.Session.SetInt32(SD.ssShoppingCart, 0);
 
-
-            if(stripeToken == null)
+            if (stripeToken == null)
             {
                 //order will be created for delayed payment for authroized company
                 ShoppingCartVM.OrderHeader.PaymentDueDate = DateTime.Now.AddDays(30);
@@ -236,7 +235,7 @@ namespace BulkyBook.Areas.Customer.Controllers
                 {
                     Amount = Convert.ToInt32(ShoppingCartVM.OrderHeader.OrderTotal * 100),
                     Currency = "usd",
-                    Description = "Ord ID : " + ShoppingCartVM.OrderHeader.Id,
+                    Description = "Order ID : " + ShoppingCartVM.OrderHeader.Id,
                     Source = stripeToken
                 };
 
@@ -251,7 +250,7 @@ namespace BulkyBook.Areas.Customer.Controllers
                 {
                     ShoppingCartVM.OrderHeader.TransactionId = charge.BalanceTransactionId;
                 }
-                if (charge.Status.ToLower() == "succeeded") 
+                if (charge.Status.ToLower() == "succeeded")
                 {
                     ShoppingCartVM.OrderHeader.PaymentStatus = SD.PaymentStatusApproved;
                     ShoppingCartVM.OrderHeader.OrderStatus = SD.StatusApproved;
@@ -260,13 +259,13 @@ namespace BulkyBook.Areas.Customer.Controllers
             }
 
             _unitOfWork.Save();
+
             return RedirectToAction("OrderConfirmation", "Cart", new { id = ShoppingCartVM.OrderHeader.Id });
 
         }
 
-        public IActionResult OrderConfirmation (int id)
+        public IActionResult OrderConfirmation(int id)
         {
-
             return View(id);
         }
     }

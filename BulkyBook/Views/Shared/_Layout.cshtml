@@ -57,6 +57,9 @@
                                 </div>
                             </li>
                         }
+                        <li class="nav-item">
+                            <a class="nav-link" asp-area="Admin" asp-controller="Order" asp-action="Index">Orders</a>
+                        </li>
                         @if (HttpContextAccessor.HttpContext.Session.GetInt32(SD.ssShoppingCart) != null)
                         {
                             <li style="color: white;">
@@ -71,7 +74,7 @@
                         else
                         {
                             <li style="color: white;">
-                                <a href="#" class="nav-link"> 
+                                <a href="#" class="nav-link">
                                     <i class="fas fa-shopping-cart"></i> &nbsp; (0)
                                 </a>
                             </li>

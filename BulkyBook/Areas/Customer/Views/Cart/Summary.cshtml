@@ -88,7 +88,6 @@
                                 <ul class="list-group mb-3">
                                     @foreach (var details in Model.ListCart)
                                     {
-
                                         <li class="list-group-item d-flex justify-content-between">
                                             <div>
                                                 <h6 class="my-0">@details.Product.Title</h6>
@@ -117,7 +116,7 @@
                                 var OrderTotalForStripe = Model.OrderHeader.OrderTotal * 100;
                             }
                             @if (Model.OrderHeader.ApplicationUser.Company == null ||
-                        !Model.OrderHeader.ApplicationUser.Company.IsAuthorizedCompany)
+                          !Model.OrderHeader.ApplicationUser.Company.IsAuthorizedCompany)
                             {
                                 <script src="https://checkout.stripe.com/checkout.js" class="stripe-button"
                                         data-key="@Stripe.Value.PublishableKey"
@@ -145,7 +144,6 @@
         </div>
     </div>
 </form>
-
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
 }
