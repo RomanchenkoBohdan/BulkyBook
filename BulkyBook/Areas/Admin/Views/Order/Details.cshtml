@@ -1,6 +1,8 @@
 ﻿@model BulkyBook.Models.ViewModels.OrderDetailsVM
 @using BulkyBook.Utility
+@using Microsoft.Extensions.Options
 
+@inject IOptions<BulkyBook.Utility.StripeSettings> Stripe
 
 <form method="post">
     <input hidden asp-for="OrderHeader.Id" />
@@ -35,6 +37,7 @@
                                     {
                                         <input asp-for="OrderHeader.Name" type="text" class="form-control" readonly />
                                     }
+
                                 </div>
                             </div>
                             <div class="row my-1">
@@ -181,7 +184,6 @@
                                                    readonly id="paymentDate" type="text" class="form-control" />
                                         </div>
                                     }
-
                                 </div>
                                 <div class="row my-1">
                                     <div class="col-3">Payment Status</div>
@@ -227,7 +229,7 @@
                             @if (User.IsInRole(SD.Role_Admin) || User.IsInRole(SD.Role_Employee))
                             {
                                 <br />
-                                if (Model.OrderHeader.OrderStatus == SD.StatusApproved)
+                                @if (Model.OrderHeader.OrderStatus == SD.StatusApproved)
                                 {
                                     <a asp-action="StartProcessing" asp-route-id="@Model.OrderHeader.Id"
                                        class="btn btn-primary form-control">Start Processing</a>
@@ -244,9 +246,33 @@
                                 <label class="btn btn-primary form-control">@Model.OrderHeader.OrderStatus</label>
                             }
 
+                            @{
+                                var OrderTotalForStripe = Model.OrderHeader.OrderTotal * 100;
+                            }
+
+                            @if (Model.OrderHeader.PaymentStatus == SD.PaymentStatusDelayedPayment &&
+                              Model.OrderHeader.OrderStatus == SD.StatusShipped)
+                            {
+                                <script src="https://checkout.stripe.com/checkout.js" class="stripe-button"
+                                        data-key="@Stripe.Value.PublishableKey"
+                                        data-amount="@OrderTotalForStripe"
+                                        data-name="Bulky Book"
+                                        data-label="Place Order"
+                                        data-description="Get Books, For Less"
+                                        data-locale="auto"
+                                        data-allow-remember-me="false"
+                                        data-image="https://stripe.com/img/documentation/checkout/marketplace.png">
+                                </script>
+                                <script>
+                                    document.getElementsByClassName("stripe-button-el")[0].style.display = 'none';
+                                </script>
+                                <button type="submit" value="Place Order" class="btn btn-success form-control">Pay Now</button>
+                            }
+
+
                             @if (Model.OrderHeader.OrderStatus != SD.StatusRefunded &&
-                        Model.OrderHeader.OrderStatus != SD.StatusCancelled &&
-                        (User.IsInRole(SD.Role_Admin) || User.IsInRole(SD.Role_Employee)))
+                          Model.OrderHeader.OrderStatus != SD.StatusCancelled &&
+                          (User.IsInRole(SD.Role_Admin) || User.IsInRole(SD.Role_Employee)))
                             {
                                 <div class="pt-2">
                                     <a asp-action="CancelOrder" asp-route-id="@Model.OrderHeader.Id"
@@ -260,6 +286,7 @@
         </div>
     </div>
 </form>
+
 
 @section Scripts{
     <script>
@@ -281,18 +308,21 @@
             }
         }
 
+
         $(document).ready(function () {
             var shippingDate = document.getElementById("shippingDate");
-            if (shippingDate.value == '01.01.0001') {
+
+            if (shippingDate.value == '1/1/0001') {
                 shippingDate.value = "";
             }
+
             var paymentDate = document.getElementById("paymentDate");
-            if (paymentDate.value == '01.01.0001') {
+
+            if (paymentDate.value == '1/1/0001') {
                 paymentDate.value = "";
             }
+
         });
-
-
     </script>
 
 }

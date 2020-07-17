@@ -1,5 +1,6 @@
 ﻿@model BulkyBook.Models.ViewModels.ShoppingCartVM
 @using Microsoft.Extensions.Options
+@using Microsoft.Extensions.Options
 
 @inject IOptions<BulkyBook.Utility.StripeSettings> Stripe
 
@@ -116,7 +117,7 @@
                                 var OrderTotalForStripe = Model.OrderHeader.OrderTotal * 100;
                             }
                             @if (Model.OrderHeader.ApplicationUser.Company == null ||
-                          !Model.OrderHeader.ApplicationUser.Company.IsAuthorizedCompany)
+                         !Model.OrderHeader.ApplicationUser.Company.IsAuthorizedCompany)
                             {
                                 <script src="https://checkout.stripe.com/checkout.js" class="stripe-button"
                                         data-key="@Stripe.Value.PublishableKey"
