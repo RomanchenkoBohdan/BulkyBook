@@ -14,7 +14,10 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.WebUtilities;
+using Microsoft.Extensions.Options;
 using Stripe;
+using Twilio;
+using Twilio.Rest.Api.V2010.Account;
 
 namespace BulkyBook.Areas.Customer.Controllers
 {
@@ -23,16 +26,20 @@ namespace BulkyBook.Areas.Customer.Controllers
     {
         private readonly IUnitOfWork _unitOfWork;
         private readonly IEmailSender _emailSender;
+
+        private TwilioSettings _twilioOptions { get; set; }
         private readonly UserManager<IdentityUser> _userManager;
 
         [BindProperty]
         public ShoppingCartVM ShoppingCartVM { get; set; }
 
-        public CartController(IUnitOfWork unitOfWork, IEmailSender emailSender, UserManager<IdentityUser> userManager)
+        public CartController(IUnitOfWork unitOfWork, IEmailSender emailSender,
+            UserManager<IdentityUser> userManager, IOptions<TwilioSettings> twilioOptions)
         {
             _unitOfWork = unitOfWork;
             _emailSender = emailSender;
             _userManager = userManager;
+            _twilioOptions = twilioOptions.Value;
         }
 
         public IActionResult Index()
@@ -50,7 +57,7 @@ namespace BulkyBook.Areas.Customer.Controllers
                                                         .GetFirstOrDefault(u => u.Id == claim.Value,
                                                         includeProperties: "Company");
 
-            foreach(var list in ShoppingCartVM.ListCart)
+            foreach (var list in ShoppingCartVM.ListCart)
             {
                 list.Price = SD.GetPriceBasedOnQuantity(list.Count, list.Product.Price,
                                                         list.Product.Price50, list.Product.Price100);
@@ -110,7 +117,7 @@ namespace BulkyBook.Areas.Customer.Controllers
             var cart = _unitOfWork.ShopingCart.GetFirstOrDefault
                         (c => c.Id == cartId, includeProperties: "Product");
 
-            if(cart.Count == 1)
+            if (cart.Count == 1)
             {
                 var cnt = _unitOfWork.ShopingCart.GetAll(u => u.ApplicationUserId == cart.ApplicationUserId).ToList().Count;
                 _unitOfWork.ShopingCart.Remove(cart);
@@ -125,7 +132,7 @@ namespace BulkyBook.Areas.Customer.Controllers
                 _unitOfWork.Save();
             }
 
-            
+
             return RedirectToAction(nameof(Index));
         }
 
@@ -158,14 +165,14 @@ namespace BulkyBook.Areas.Customer.Controllers
 
 
             ShoppingCartVM.OrderHeader.ApplicationUser = _unitOfWork.ApplicationUser
-                                                            .GetFirstOrDefault(c=>c.Id==claim.Value,
+                                                            .GetFirstOrDefault(c => c.Id == claim.Value,
                                                                 includeProperties: "Company");
 
-            foreach(var list in ShoppingCartVM.ListCart)
+            foreach (var list in ShoppingCartVM.ListCart)
             {
                 list.Price = SD.GetPriceBasedOnQuantity(list.Count, list.Product.Price,
                                                         list.Product.Price50, list.Product.Price100);
-                ShoppingCartVM.OrderHeader.OrderTotal += (list.Price* list.Count);
+                ShoppingCartVM.OrderHeader.OrderTotal += (list.Price * list.Count);
             }
             ShoppingCartVM.OrderHeader.Name = ShoppingCartVM.OrderHeader.ApplicationUser.Name;
             ShoppingCartVM.OrderHeader.PhoneNumber = ShoppingCartVM.OrderHeader.ApplicationUser.PhoneNumber;
@@ -265,6 +272,21 @@ namespace BulkyBook.Areas.Customer.Controllers
 
         public IActionResult OrderConfirmation(int id)
         {
+            OrderHeader orderHeader = _unitOfWork.OrderHeader.GetFirstOrDefault(u => u.Id == id);
+            TwilioClient.Init(_twilioOptions.AccountSid, _twilioOptions.AuthToken);
+            try
+            {
+                var message = MessageResource.Create(
+                    body: "Order Placed on Bulky Book. Your Order ID:" + id,
+                    from: new Twilio.Types.PhoneNumber(_twilioOptions.PhoneNumber),
+                    to: new Twilio.Types.PhoneNumber(orderHeader.PhoneNumber)
+                    );
+            }
+            catch (Exception ex)
+            {
+
+            }
+
             return View(id);
         }
     }
