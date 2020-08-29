@@ -32,12 +32,15 @@ namespace BulkyBook.Areas.Admin.Controllers
             return View();
         }
 
-        public IActionResult Upsert(int? id)
+        public async Task<IActionResult> Upsert(int? id)
         {
+            IEnumerable<Category> CatList = await _unitOfWork.Category.GetAllAsync();
             ProductVM productVM = new ProductVM()
             {
-                Product=new Product(),
-                CategoryList = _unitOfWork.Category.GetAll().Select(i=> new SelectListItem { 
+
+                Product = new Product(),
+                CategoryList = CatList.Select(i => new SelectListItem
+                {
                     Text = i.Name,
                     Value = i.Id.ToString()
                 }),
@@ -64,7 +67,7 @@ namespace BulkyBook.Areas.Admin.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult Upsert(ProductVM productVM)
+        public async Task<IActionResult> Upsert(ProductVM productVM)
         {
             if (ModelState.IsValid)
             {
@@ -85,7 +88,7 @@ namespace BulkyBook.Areas.Admin.Controllers
                             System.IO.File.Delete(imagePath);
                         }
                     }
-                    using(var filesStreams = new FileStream(Path.Combine(uploads,fileName+extenstion),FileMode.Create))
+                    using (var filesStreams = new FileStream(Path.Combine(uploads, fileName + extenstion), FileMode.Create))
                     {
                         files[0].CopyTo(filesStreams);
                     }
@@ -94,7 +97,7 @@ namespace BulkyBook.Areas.Admin.Controllers
                 else
                 {
                     //update when they do not change the image
-                    if(productVM.Product.Id != 0)
+                    if (productVM.Product.Id != 0)
                     {
                         Product objFromDb = _unitOfWork.Product.Get(productVM.Product.Id);
                         productVM.Product.ImageUrl = objFromDb.ImageUrl;
@@ -116,7 +119,8 @@ namespace BulkyBook.Areas.Admin.Controllers
             }
             else
             {
-                productVM.CategoryList = _unitOfWork.Category.GetAll().Select(i => new SelectListItem
+                IEnumerable<Category> CatList = await _unitOfWork.Category.GetAllAsync();
+                productVM.CategoryList = CatList.Select(i => new SelectListItem
                 {
                     Text = i.Name,
                     Value = i.Id.ToString()
@@ -140,7 +144,7 @@ namespace BulkyBook.Areas.Admin.Controllers
         [HttpGet]
         public IActionResult GetAll()
         {
-            var allObj = _unitOfWork.Product.GetAll(includeProperties:"Category,CoverType");
+            var allObj = _unitOfWork.Product.GetAll(includeProperties: "Category,CoverType");
             return Json(new { data = allObj });
         }
 
