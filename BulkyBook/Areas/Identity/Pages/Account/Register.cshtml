@@ -15,7 +15,7 @@
                         <h3 class="col-12 text-success text-center py-4">
                             @if (User.IsInRole(SD.Role_Admin) || User.IsInRole(SD.Role_Employee))
                             {
-                                <strong> Register an User Account</strong>
+                                <strong>Register an User Account</strong>
                             }
                             else
                             {
@@ -33,9 +33,9 @@
                         </div>
                         <div class="py-2 input-group">
                             <div class="input-group-prepend">
-                                <span class="input-group-text">+3</span>
+                                <span class="input-group-text"> +1</span>
                             </div>
-                            <input asp-for="Input.PhoneNumber" type="text" placeholder="PhoneNumber" class="form-control" />
+                            <input asp-for="Input.PhoneNumber" type="text" placeholder="Phone Number" class="form-control" />
                             <span asp-validation-for="Input.PhoneNumber" class="text-danger"></span>
                         </div>
                         <div class="py-2">
@@ -43,7 +43,7 @@
                             <span asp-validation-for="Input.StreetAddress" class="text-danger"></span>
                         </div>
                         <div class="py-2">
-                            <input asp-for="Input.City" placeholder="City" class="form-control" />
+                            <input asp-for="Input.City" placeholder="Street Address" class="form-control" />
                             <span asp-validation-for="Input.City" class="text-danger"></span>
                         </div>
                         <div class="form-row py-2">
@@ -55,8 +55,8 @@
                                 <input asp-for="Input.PostalCode" placeholder="Postal Code" class="form-control" />
                                 <span asp-validation-for="Input.PostalCode" class="text-danger"></span>
                             </div>
-                        </div>
 
+                        </div>
                         <div class="form-row py-2">
                             <div class="col">
                                 <input asp-for="Input.Password" type="password" placeholder="Password" class="form-control" />
@@ -66,8 +66,9 @@
                                 <input asp-for="Input.ConfirmPassword" type="password" placeholder="Confirm Password" class="form-control" />
                                 <span asp-validation-for="Input.ConfirmPassword" class="text-danger"></span>
                             </div>
+
                         </div>
-                        @if (User.IsInRole(SD.Role_Admin) || User.IsInRole(SD.Role_Employee))
+                        @if (User.IsInRole(SD.Role_Admin))
                         {
                             <div class="form-group">
                                 <label asp-for="Input.Role"></label>
@@ -100,11 +101,11 @@
                                         <div class="col-6">
                                             @if (provider.Name.ToLower().Contains("facebook"))
                                             {
-                                            <button type="submit" class="btn btn-block facebook-btn form-control"
-                                                    name="provider" value="@provider.Name"
-                                                    title="Log in using your @provider.DisplayName account">
-                                                <i class="fab fa-facebook-square"></i> @provider.DisplayName
-                                            </button>
+                                                <button type="submit" class="btn btn-block facebook-btn form-control"
+                                                        name="provider" value="@provider.Name"
+                                                        title="Log in using your @provider.DisplayName account">
+                                                    <i class="fab fa-facebook-square"></i> @provider.DisplayName
+                                                </button>
                                             }
                                             else
                                             {
@@ -113,7 +114,7 @@
                                                     <button type="submit" class="btn btn-block google-btn form-control"
                                                             name="provider" value="@provider.Name"
                                                             title="Log in using your @provider.DisplayName account">
-                                                       <i class="fab fa-google"></i> @provider.DisplayName
+                                                        <i class="fab fa-google"></i> @provider.DisplayName
                                                     </button>
                                                 }
                                                 else
@@ -123,21 +124,22 @@
                                                             title="Log in using your @provider.DisplayName account">
                                                         @provider.DisplayName
                                                     </button>
-
                                                 }
                                             }
                                         </div>
+
                                     }
                                 </p>
                             </div>
                         </form>
                     }
-
                 </div>
             </div>
         </div>
     </div>
 </div>
+
+
 
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
